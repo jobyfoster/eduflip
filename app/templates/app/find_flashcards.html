@@ -56,7 +56,7 @@
                     {% for flashcard_set in search_results %}
                         <tr>
                             <td>{{ flashcard_set.topic }}</td>
-                            <td>{{ flashcard_set.study_level }}</td>
+                            <td>{{ flashcard_set.study_level|title }}</td>
                             <td>{{ flashcard_set.number_of_flashcards }}</td>
                             <td>{{ flashcard_set.user.username }}</td>
                             <td>

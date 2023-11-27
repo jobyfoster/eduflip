@@ -6,6 +6,13 @@
 {% block content %}
 <div class="card mx-auto">
     <div class="card-body p-4">
+        {% if error_messages %}
+            <div class="alert alert-danger" role="alert">
+                {% for message in error_messages %}
+                    <p class="mb-0">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
         <form method="post" id="flashcardForm">
             {% csrf_token %}
             {{ form|crispy }}

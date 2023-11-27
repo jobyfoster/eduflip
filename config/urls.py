@@ -23,7 +23,7 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("", app_views.home_view, name="home"),
-    path("generate/", app_views.flashcards_view, name="generate_flashcards"),
+    path("generate/", app_views.generate_flashcards_view, name="generate_flashcards"),
     path("study/", app_views.find_flashcards, name="find_flashcards"),
     path("study/<str:set_id>/", app_views.flashcard_set_view, name="flashcard_set"),
     path("register/", user_views.register, name="register"),

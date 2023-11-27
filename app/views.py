@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseServerError
 from openai import OpenAI, OpenAIError
 import json
+import openai
 
 from .forms import FlashCardsForm, FlashcardSearchForm
 from .models import Flashcard, FlashcardSet, create_flashcard_set, advanced_search
@@ -13,16 +14,36 @@ def home_view(request):
     return render(request, "app/home.html")
 
 
+def is_api_key_valid(key):
+    try:
+        client = OpenAI(api_key=key)
+        response = client.completions.create(
+            model="gpt-3.5-turbo-instruct",
+            prompt="This is a test.",
+            max_tokens=5,
+        )
+    except Exception as ex:
+        print(ex)
+        return False
+    else:
+        return True
+
+
 @login_required
-def flashcards_view(request):
+def generate_flashcards_view(request):
+    error_messages = []
+    form = FlashCardsForm()
+
+    print("Testing API key")
+    if not is_api_key_valid(request.user.account.openai_key):
+        error_messages.append(
+            "Invalid or expired OpenAI API key. Please check your settings."
+        )
+
     try:
         client = OpenAI(api_key=request.user.account.openai_key)
     except OpenAIError as e:
-        print(f"Error connecting to OpenAI: {e}")
-        return HttpResponseServerError("Error connecting to the OpenAI service.")
-
-    form = FlashCardsForm()
-    context = {"form": form}
+        error_messages.append(f"Error connecting to OpenAI: {e}")
 
     if request.method == "POST":
         form = FlashCardsForm(request.POST)
@@ -83,9 +104,10 @@ The response should be in JSON format like this [{{'question': ..., 'answer'}}, 
             except Exception as e:
                 print(f"Error: {e}")
                 return HttpResponseServerError(
-                    "An error occurred while processing your request."
+                    "An error occurred while processing your request. Please check your OpenAI API key in the settings."
                 )
 
+    context = {"form": form, "error_messages": error_messages}
     return render(request, "app/create_flashcards.html", context=context)
 
 
@@ -112,7 +134,11 @@ def flashcard_set_view(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, id=set_id)
     flashcards = flashcard_set.flashcards.all()
 
-    return render(request, "app/study_flashcards.html", {"flashcards": flashcards})
+    return render(
+        request,
+        "app/study_flashcards.html",
+        {"flashcards": flashcards, "flashcard_set": flashcard_set},
+    )
 
 
 def find_flashcards(request):
