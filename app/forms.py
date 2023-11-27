@@ -25,11 +25,27 @@ class FlashCardsForm(forms.Form):
 
 
 class FlashcardSearchForm(forms.Form):
+    STUDY_LEVEL_CHOICES = [
+        ("", "None"),
+        ("beginner", "Beginner"),
+        ("intermediate", "Intermediate"),
+        ("expert", "Expert"),
+    ]
+
+    NUMBER_CHOICES = [
+        ("", "None"),
+        (10, "10"),
+        (15, "15"),
+        (20, "20"),
+    ]
+
     topic = forms.CharField(
         required=False, widget=forms.TextInput(attrs={"class": "form-control"})
     )
-    study_level = forms.CharField(
-        required=False, widget=forms.TextInput(attrs={"class": "form-control"})
+    study_level = forms.ChoiceField(
+        choices=STUDY_LEVEL_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
     user_id = forms.CharField(
         required=False, widget=forms.TextInput(attrs={"class": "form-control"})
@@ -42,6 +58,8 @@ class FlashcardSearchForm(forms.Form):
         required=False,
         widget=forms.DateInput(attrs={"class": "form-control", "type": "date"}),
     )
-    number_of_flashcards = forms.IntegerField(
-        required=False, widget=forms.NumberInput(attrs={"class": "form-control"})
+    number_of_flashcards = forms.ChoiceField(
+        choices=NUMBER_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={"class": "form-control"}),
     )

@@ -104,15 +104,22 @@ def count_sets_by_user(user_id):
 
 
 def advanced_search(
-    topic=None, level=None, user_id=None, start_date=None, end_date=None
+    topic=None,
+    level=None,
+    user_id=None,
+    start_date=None,
+    end_date=None,
+    number_of_flashcards=None,
 ):
     query = FlashcardSet.objects.all()
     if topic:
         query = query.filter(topic__icontains=topic)
-    if level:
+    if level and level != "":
         query = query.filter(study_level__icontains=level)
     if user_id:
         query = query.filter(user__id=user_id)
     if start_date and end_date:
         query = query.filter(created_at__range=[start_date, end_date])
+    if number_of_flashcards and number_of_flashcards != "":
+        query = query.filter(number_of_flashcards=number_of_flashcards)
     return query

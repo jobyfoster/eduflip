@@ -9,8 +9,6 @@ from .models import Flashcard, FlashcardSet, create_flashcard_set, advanced_sear
 
 
 # Create your views here.
-
-
 def home_view(request):
     return render(request, "app/home.html")
 
@@ -127,10 +125,10 @@ def find_flashcards(request):
             search_results = advanced_search(
                 topic=form.cleaned_data.get("topic"),
                 level=form.cleaned_data.get("study_level"),
+                number_of_flashcards=form.cleaned_data.get("number_of_flashcards"),
                 user_id=form.cleaned_data.get("user_id"),
                 start_date=form.cleaned_data.get("start_date"),
                 end_date=form.cleaned_data.get("end_date"),
-                # Add other criteria as needed
             )
     else:
         form = FlashcardSearchForm()
