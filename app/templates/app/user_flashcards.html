@@ -1,0 +1,42 @@
+{% extends "app/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}Find Flashcards{% endblock page_title %}
+
+{% block content %}
+
+    <div class="mt-3">
+        <h3>Your Flashcards</h3>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Topic</th>
+                        <th scope="col">Study Level</th>
+                        <th scope="col">Number of Flashcards</th>
+                        <th scope="col">Created By</th>
+                        <th scope="col">View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for flashcard_set in user_flashcards %}
+                        <tr>
+                            <td>{{ flashcard_set.topic }}</td>
+                            <td>{{ flashcard_set.study_level|title }}</td>
+                            <td>{{ flashcard_set.number_of_flashcards }}</td>
+                            <td>{{ flashcard_set.user.username }}</td>
+                            <td>
+                                <a href="{% url 'flashcard_set' flashcard_set.id %}" class="btn btn-sm btn-primary">View</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">No flashcard sets found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

@@ -6,7 +6,13 @@ import json
 import openai
 
 from .forms import FlashCardsForm, FlashcardSearchForm
-from .models import Flashcard, FlashcardSet, create_flashcard_set, advanced_search
+from .models import (
+    Flashcard,
+    FlashcardSet,
+    create_flashcard_set,
+    advanced_search,
+    search_by_user,
+)
 
 
 # Create your views here.
@@ -141,7 +147,7 @@ def flashcard_set_view(request, set_id):
     )
 
 
-def find_flashcards(request):
+def search_flashcards(request):
     search_results = None
     if request.method == "POST":
         form = FlashcardSearchForm(request.POST)
@@ -163,4 +169,14 @@ def find_flashcards(request):
         request,
         "app/find_flashcards.html",
         {"form": form, "search_results": search_results},
+    )
+
+
+def user_flashcards(request):
+    user_flashcards = search_by_user(request.user.id)
+
+    return render(
+        request,
+        "app/user_flashcards.html",
+        context={"user_flashcards": user_flashcards},
     )

@@ -9,9 +9,8 @@
 {% endblock head_block %}
 
 {% block content %}
-
-    <div class="flashcard-set-info">
-        <h2 class="mb-3">{{ flashcard_set.topic }}</h2>
+    <div class="flashcard-set-info p-3 pt-4 mt-3 mb-5">
+        <h2 class="mb-4">{{ flashcard_set.topic }}</h2>
         <p><strong>Created By:</strong> {{ flashcard_set.user.username }}</p>
         <p><strong>Date Created:</strong> {{ flashcard_set.created_at|date:"F d, Y" }}</p>
         <p><strong>Study Level:</strong> {{ flashcard_set.study_level|title }}</p>
@@ -20,14 +19,14 @@
 
     <div class="row flashcard-container">
         {% for flashcard in flashcards %}
-        <div class="col-md-4 mb-3">
+        <div class="col-md-4 mb-5">
             <div class="flashcard">
                 <div class="card-content bg-primary text-white rounded border">
                     <div class="card-front card-body">
-                        <p class="card-text">{{ flashcard.question }}</p>
+                        <p class="card-text px-2 py-4">{{ flashcard.question }}</p>
                     </div>
                     <div class="card-back card-body">
-                        <p class="card-text">{{ flashcard.answer }}</p>
+                        <p class="card-text px-2 py-4">{{ flashcard.answer }}</p>
                     </div>
                 </div>
             </div>
