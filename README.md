@@ -2,8 +2,11 @@
 
 EduFlip is an interactive flashcard study application designed to make learning fun and efficient. Developed as a Unit 5 Django project at Base Camp Coding Academy, EduFlip offers a unique platform for users to create, share, and study with flashcards on various topics.
 
-## Starting Date
+## Project Timeline
 Project initiation: November 13, 2023
+
+![GitHub last commit](https://img.shields.io/github/last-commit/jobyfoster/eduflip)
+
 
 ## Features
 - **Flashcard Creation and Management:** Users can create their own flashcard sets with custom topics.
