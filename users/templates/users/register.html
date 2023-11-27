@@ -1,0 +1,24 @@
+{% extends "app/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}Register{% endblock page_title %}
+
+{% block content %}
+
+<div class="card w-75 mx-auto">
+    <div class="card-body p-4">
+        <h4 class="card-title mb-3">Register Account</h4>
+        <form method="POST" class="form-group">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-dark text-white mb-3">Register</button>
+            <br>
+            <small class="text-danger">* An OpenAI API Key is required to use Quizzler *</small>
+        </form>
+    </div>
+    <div class="card-footer">
+        <small class="text-center pt-3">Already have an account? <a href="{% url "login" %}" class="text-decoration-none">Sign In</a></small>
+    </div>
+</div>
+    
+{% endblock content %}

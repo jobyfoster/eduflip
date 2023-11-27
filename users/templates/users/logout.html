@@ -1,0 +1,12 @@
+{% extends "app/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}Register{% endblock page_title %}
+
+{% block content %}
+
+<h3>You have been logged out!</h3>
+<hr class="my-3"></hr>
+<small><a class="text-decoration-none" href="{% url "login" %}">Log back in</a></small>
+
+{% endblock content %}

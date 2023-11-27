@@ -1,0 +1,31 @@
+{% extends "app/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}Create Flashcards{% endblock page_title %}
+
+{% block content %}
+<div class="card mx-auto">
+    <div class="card-body p-4">
+        <form method="post" id="flashcardForm">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary" id="submitBtn">Generate Flashcards</button>
+        </form>
+        <div id="loadingSpinner" style="display: none;">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Loading...
+        </div>
+    </div>
+    
+</div>
+
+<script>
+    document.getElementById('flashcardForm').addEventListener('submit', function(e) {
+        var btn = document.getElementById('submitBtn');
+        var spinner = document.getElementById('loadingSpinner');
+
+        btn.style.display = 'none';
+        spinner.style.display = 'block';
+    });
+</script>
+{% endblock %}

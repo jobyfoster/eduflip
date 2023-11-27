@@ -1,0 +1,39 @@
+#nav-bar .nav-link,
+#nav-bar .navbar-brand {
+  color: #ffffff;
+}
+
+#nav-bar .navbar-brand {
+  font-size: 1.2em; /* Adjust size as needed */
+}
+
+#nav-bar .nav-link {
+  color: #555; /* Neutral color for links */
+  border-bottom: 2px solid transparent; /* Transparent border for all links */
+  border-radius: 0.75rem;
+  transition: color 0.3s ease-in-out;
+}
+
+#nav-bar .nav-link.active,
+#nav-bar .nav-link.active:hover {
+  color: #007bff; /* Highlight color for active link */
+  border-radius: 0.75rem 0.75rem 0px 0px;
+  border-bottom: 2px solid #007bff; /* Colored border for active link */
+}
+
+#nav-bar .nav-link:hover {
+  color: #000; /* Color change on hover */
+  background-color: #f1f6fa; /* Subtle background change on hover */
+  text-decoration: none; /* Remove underline */
+}
+
+#nav-bar .btn-outline-danger {
+  border-color: #dc3545; /* Border color for the button */
+  color: #dc3545; /* Text color for the button */
+  transition: all 0.3s ease-in-out;
+}
+
+#nav-bar .btn-outline-danger:hover {
+  background-color: #dc3545; /* Background color on hover */
+  color: #fff; /* Text color on hover */
+}
