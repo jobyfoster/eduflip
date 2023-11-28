@@ -1,87 +1,95 @@
+{# Extend the base layout from app/base.html #}
 {% extends "app/base.html" %}
+
+{# Load the crispy forms tags for better form styling #}
 {% load crispy_forms_tags %}
 
+{# Set the page title to 'Find Flashcards' #}
 {% block page_title %}Find Flashcards{% endblock page_title %}
 
 {% block content %}
-<div class="card mx-auto">
-    <div class="card-body p-4">
-        <form method="post" id="flashcardForm" class="row g-3">
-            {% csrf_token %}
-            <div class="col-md-6">
-                {{ form.topic|as_crispy_field }}
+    {# Main container for the flashcard search form #}
+    <div class="card mx-auto">
+        <div class="card-body p-4">
+            {# Flashcard search form with different fields #}
+            <form method="post" id="flashcardForm" class="row g-3">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    {# Crispy field for selecting a topic #}
+                    {{ form.topic|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {# Crispy field for selecting study level #}
+                    {{ form.study_level|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {# Crispy field for entering username #}
+                    {{ form.username|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {# Crispy field for specifying number of flashcards #}
+                    {{ form.number_of_flashcards|as_crispy_field }}
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Find Flashcards</button>
+                </div>
+            </form>
+
+            {# Loading spinner, hidden by default #}
+            <div id="loadingSpinner" style="display: none;">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Loading...
             </div>
-            <div class="col-md-6">
-                {{ form.study_level|as_crispy_field }}
-            </div>
-            <div class="col-md-6">
-                {{ form.user_id|as_crispy_field }}
-            </div>
-            <div class="col-md-6">
-                {{ form.start_date|as_crispy_field }}
-            </div>
-            <div class="col-md-6">
-                {{ form.end_date|as_crispy_field }}
-            </div>
-            <div class="col-md-6">
-                {{ form.number_of_flashcards|as_crispy_field }}
-            </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary" id="submitBtn">Find Flashcards</button>
-            </div>
-        </form>
-        <div id="loadingSpinner" style="display: none;">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            Loading...
         </div>
     </div>
-    
-</div>
 
-{% if search_results %}
-    <div class="search-results mt-5">
-        <h3>Search Results</h3>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th scope="col">Topic</th>
-                        <th scope="col">Study Level</th>
-                        <th scope="col">Number of Flashcards</th>
-                        <th scope="col">Created By</th>
-                        <th scope="col">View</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for flashcard_set in search_results %}
+    {# Display search results if available #}
+    {% if search_results %}
+        <div class="search-results mt-5">
+            <h3>Search Results</h3>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
                         <tr>
-                            <td>{{ flashcard_set.topic }}</td>
-                            <td>{{ flashcard_set.study_level|title }}</td>
-                            <td>{{ flashcard_set.number_of_flashcards }}</td>
-                            <td>{{ flashcard_set.user.username }}</td>
-                            <td>
-                                <a href="{% url 'flashcard_set' flashcard_set.id %}" class="btn btn-sm btn-primary">View</a>
-                            </td>
+                            <th scope="col">Topic</th>
+                            <th scope="col">Study Level</th>
+                            <th scope="col">Number of Flashcards</th>
+                            <th scope="col">Created By</th>
+                            <th scope="col">View</th>
                         </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5">No flashcard sets found.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {# Iterate over each flashcard set in the search results #}
+                        {% for flashcard_set in search_results %}
+                            <tr>
+                                <td>{{ flashcard_set.topic }}</td>
+                                <td>{{ flashcard_set.study_level|title }}</td>
+                                <td>{{ flashcard_set.number_of_flashcards }}</td>
+                                <td>{{ flashcard_set.user.username }}</td>
+                                <td>
+                                    {# Link to view individual flashcard set #}
+                                    <a href="{% url 'flashcard_set' flashcard_set.id %}" class="btn btn-sm btn-primary px-4">View</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5">No flashcard sets found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-{% endif %}
+    {% endif %}
 
+    {# JavaScript to handle form submission #}
+    <script>
+        document.getElementById('flashcardForm').addEventListener('submit', function(e) {
+            var btn = document.getElementById('submitBtn');
+            var spinner = document.getElementById('loadingSpinner');
 
-<script>
-    document.getElementById('flashcardForm').addEventListener('submit', function(e) {
-        var btn = document.getElementById('submitBtn');
-        var spinner = document.getElementById('loadingSpinner');
-
-        btn.style.display = 'none';
-        spinner.style.display = 'block';
-    });
-</script>
+            btn.style.display = 'none'; // Hide submit button
+            spinner.style.display = 'block'; // Show loading spinner
+        });
+    </script>
 {% endblock %}

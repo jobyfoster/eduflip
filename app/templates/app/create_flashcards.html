@@ -1,38 +1,49 @@
+{# Extend the base layout from app/base.html #}
 {% extends "app/base.html" %}
+
+{# Load the crispy forms tags for better form styling #}
 {% load crispy_forms_tags %}
 
+{# Set the page title to 'Create Flashcards' #}
 {% block page_title %}Create Flashcards{% endblock page_title %}
 
 {% block content %}
-<div class="card mx-auto">
-    <div class="card-body p-4">
-        {% if error_messages %}
-            <div class="alert alert-danger" role="alert">
-                {% for message in error_messages %}
-                    <p class="mb-0">{{ message }}</p>
-                {% endfor %}
+    {# Main container for the flashcard creation form #}
+    <div class="card mx-auto">
+        <div class="card-body p-4">
+            {# Display error messages, if any #}
+            {% if error_messages %}
+                <div class="alert alert-danger" role="alert">
+                    {% for message in error_messages %}
+                        <p class="mb-0">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {# Flashcard creation form #}
+            <form method="post" id="flashcardForm">
+                {% csrf_token %}
+                {# Use crispy forms to render the form #}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-primary" id="submitBtn">Generate Flashcards</button>
+            </form>
+
+            {# Loading spinner, hidden by default #}
+            <div id="loadingSpinner" style="display: none;">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Loading...
             </div>
-        {% endif %}
-        <form method="post" id="flashcardForm">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <button type="submit" class="btn btn-primary" id="submitBtn">Generate Flashcards</button>
-        </form>
-        <div id="loadingSpinner" style="display: none;">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            Loading...
         </div>
     </div>
-    
-</div>
 
-<script>
-    document.getElementById('flashcardForm').addEventListener('submit', function(e) {
-        var btn = document.getElementById('submitBtn');
-        var spinner = document.getElementById('loadingSpinner');
+    {# JavaScript to handle form submission #}
+    <script>
+        document.getElementById('flashcardForm').addEventListener('submit', function(e) {
+            var btn = document.getElementById('submitBtn');
+            var spinner = document.getElementById('loadingSpinner');
 
-        btn.style.display = 'none';
-        spinner.style.display = 'block';
-    });
-</script>
+            btn.style.display = 'none'; // Hide submit button
+            spinner.style.display = 'block'; // Show loading spinner
+        });
+    </script>
 {% endblock %}

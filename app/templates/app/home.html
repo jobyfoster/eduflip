@@ -41,10 +41,28 @@
         </div>
     </div>
 
-    <footer id="footer" class="bg-dark text-white mt-5">
-        <div class="container py-4">
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h2 class="mb-4">Find Your Flashcard Set</h2>
+                <p class="lead">Explore a vast collection of flashcards across various subjects to boost your learning journey.</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <form action="{% url 'search_flashcards' %}" method="post" class="input-group mb-3">
+                {% csrf_token %}                        
+                <input type="text" name="topic" class="form-control me-2" placeholder="Search for flashcards (e.g., 'Python Basics', 'World History')  " aria-label="Search Flashcards" id="id_topic">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer id="footer" class="bg-dark text-white mt-5 w-100">
+        <div class="container pt-4 pb-2">
             <div class="row">
-                <div class="col-md-6 px-4">
+                <div class="col-md-6 ps-4 pe-5">
                     <h5>About EduFlip</h5>
                     <p>Created with passion and dedication by Joby Foster. EduFlip is a product of relentless effort to make learning interactive and accessible for everyone.</p>
                 </div>
@@ -52,7 +70,7 @@
                     <h5>Links</h5>
                     <ul class="list-unstyled">
                         <li><a href="{% url 'home' %}" class="text-white">Home</a></li>
-                        <li><a href="{% url 'find_flashcards' %}" class="text-white">Search Flashcards</a></li>
+                        <li><a href="{% url 'search_flashcards' %}" class="text-white">Search Flashcards</a></li>
                         <li><a href="{% url 'register' %}" class="text-white">Register</a></li>
                         <li><a href="{% url 'login' %}" class="text-white">Login</a></li>
                     </ul>

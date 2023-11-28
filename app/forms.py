@@ -1,7 +1,8 @@
 from django import forms
+from django.forms import ValidationError
 
 
-class FlashCardsForm(forms.Form):
+class GenerateFlashCardsForm(forms.Form):
     STUDY_LEVEL_CHOICES = [
         ("beginner", "Beginner"),
         ("intermediate", "Intermediate"),
@@ -19,9 +20,23 @@ class FlashCardsForm(forms.Form):
     number_of_flashcards = forms.ChoiceField(choices=NUMBER_CHOICES)
 
     def __init__(self, *args, **kwargs):
-        super(FlashCardsForm, self).__init__(*args, **kwargs)
+        super(GenerateFlashCardsForm, self).__init__(*args, **kwargs)
         for field in self.fields:
             self.fields[field].widget.attrs["class"] = "form-control"
+
+    def clean_topic(self):
+        topic = self.cleaned_data.get("topic")
+        if len(topic) > 100:  # Example limit
+            raise ValidationError(
+                "Topic name is too long. Must be under 100 characters."
+            )
+
+        if len(topic) <= 3:
+            raise ValidationError(
+                "Topic name is too short. Must be above 3 characters."
+            )
+
+        return topic
 
 
 class FlashcardSearchForm(forms.Form):
@@ -47,19 +62,30 @@ class FlashcardSearchForm(forms.Form):
         required=False,
         widget=forms.Select(attrs={"class": "form-control"}),
     )
-    user_id = forms.CharField(
+    username = forms.CharField(
         required=False, widget=forms.TextInput(attrs={"class": "form-control"})
-    )
-    start_date = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={"class": "form-control", "type": "date"}),
-    )
-    end_date = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={"class": "form-control", "type": "date"}),
     )
     number_of_flashcards = forms.ChoiceField(
         choices=NUMBER_CHOICES,
         required=False,
         widget=forms.Select(attrs={"class": "form-control"}),
     )
+
+    def clean_topic(self):
+        topic = self.cleaned_data.get("topic")
+        if topic and len(topic) > 100:
+            raise ValidationError(
+                "Topic name is too long. Must be under 100 characters."
+            )
+
+        if topic and len(topic) <= 3:
+            raise ValidationError("Topic name is too short. Must be over 3 characters.")
+        return topic
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        if username and not username.isalnum():
+            raise ValidationError(
+                "Username should only contain alphanumeric characters."
+            )
+        return username

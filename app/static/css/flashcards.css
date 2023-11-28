@@ -1,60 +1,88 @@
+/* Container for flashcards, enabling a flexible wrap layout */
 .flashcard-container {
   display: flex;
   flex-wrap: wrap;
 }
 
+/* Individual flashcard styling */
 .flashcard {
   width: 400px;
   height: 250px;
-  perspective: 1000px;
-  transition: transform 0.3s ease;
-  cursor: pointer;
+  perspective: 1000px; /* Adds a 3D effect */
+  transition: transform 0.3s ease; /* Smooth transition for flipping effect */
+  cursor: pointer; /* Changes cursor to indicate interactivity */
 }
 
+/* Style for the content of the card, managing the flip effect */
 .card-content {
   height: 100%;
-  transition: transform 0.8s;
-  transform-style: preserve-3d;
-  border-radius: 0.25rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.8s; /* Smooth, slower transition for flipping */
+  transform-style: preserve-3d; /* Preserves 3D perspective */
+  border-radius: 0.25rem; /* Rounded corners for aesthetics */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
+  background-color: #ffffff; /* Background color for better readability */
 }
 
+/* Front and back face of the card */
 .card-front,
 .card-back {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
+  backface-visibility: hidden; /* Hides the back side when not facing the user */
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 10px;
-  border-radius: 0.25rem;
+  border-radius: 0.25rem; /* Consistent rounded corners */
 }
 
+/* Style for the back face of the card */
 .card-back {
-  transform: rotateY(180deg);
-  flex-direction: column;
+  transform: rotateY(180deg); /* Rotates the back side for flip effect */
+  flex-direction: column; /* Aligns content vertically */
+  background-color: #f7f7f7; /* Slightly different background for distinction */
+  color: #333333; /* Darker text color for contrast */
 }
 
+/* When card is flipped */
 .card-content.is-flipped {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg); /* Completes the flip effect */
 }
 
+/* Styling for the flashcard set info box */
 .flashcard-set-info {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 0.25rem;
+  background-color: #f8f9fa; /* Light background for the info box */
+  border: 1px solid #dee2e6; /* Subtle border for definition */
+  border-radius: 0.25rem; /* Rounded corners for style */
+  padding: 15px; /* Spacing inside the box */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
 }
 
+/* Responsive design for smaller screens */
 @media (max-width: 768px) {
   .flashcard {
-    width: 100%;
+    width: 100%; /* Full width on small screens */
   }
 }
 
+/* Focus style for accessibility */
 .flashcard:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #0056b3;
+  box-shadow: 0 0 0 2px #0056b3; /* Highlighted shadow for focus */
+}
+
+/* Style for favorite button */
+.btn-favorite {
+  top: 10px;
+  right: 20px;
+  font-size: 2em; /* Larger star icon */
+  color: gold; /* Gold color for the star */
+  transition: transform 0.3s ease; /* Smooth transition on hover */
+}
+
+/* Hover effect for favorite button */
+.btn-favorite:hover {
+  transform: scale(1.1); /* Slightly enlarges the star on hover */
 }

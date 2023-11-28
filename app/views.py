@@ -5,13 +5,19 @@ from openai import OpenAI, OpenAIError
 import json
 import openai
 
-from .forms import FlashCardsForm, FlashcardSearchForm
+from .forms import GenerateFlashCardsForm, FlashcardSearchForm
 from .models import (
     Flashcard,
     FlashcardSet,
+    Favorite,
     create_flashcard_set,
     advanced_search,
-    search_by_user,
+    search_by_username,
+    search_by_id,
+    get_user_favorites,
+    is_favorite,
+    add_set_to_favorites,
+    remove_set_from_favorites,
 )
 
 
@@ -25,7 +31,7 @@ def is_api_key_valid(key):
         client = OpenAI(api_key=key)
         response = client.completions.create(
             model="gpt-3.5-turbo-instruct",
-            prompt="This is a test.",
+            prompt='This is a test. respond with "a"',
             max_tokens=5,
         )
     except Exception as ex:
@@ -38,7 +44,7 @@ def is_api_key_valid(key):
 @login_required
 def generate_flashcards_view(request):
     error_messages = []
-    form = FlashCardsForm()
+    form = GenerateFlashCardsForm()
 
     print("Testing API key")
     if not is_api_key_valid(request.user.account.openai_key):
@@ -52,7 +58,7 @@ def generate_flashcards_view(request):
         error_messages.append(f"Error connecting to OpenAI: {e}")
 
     if request.method == "POST":
-        form = FlashCardsForm(request.POST)
+        form = GenerateFlashCardsForm(request.POST)
 
         if form.is_valid():
             try:
@@ -63,28 +69,13 @@ def generate_flashcards_view(request):
                 print("Starting...")
                 print("Sending request...")
 
-                flashcards = make_chat_request(
-                    f"""Generate a set of flashcards for the following specifications:
-- Topic: {topic}
-- Study Level: {study_level}
-- Number of Flashcards: {number_of_flashcards}
-
-Each flashcard should contain:
-1. A concise question or concept on one side, relevant to the chosen topic and study level.
-2. A clear, informative answer or explanation on the other side, designed to enhance understanding and retention.
-
-Guidelines for Flashcard Creation:
-- For Beginner level, focus on fundamental concepts and definitions. Use simple language and examples.
-- For Intermediate level, include more detailed explanations and practical applications.
-- For Expert level, delve into advanced theories, complex problems, and current research trends in the field.
-- Ensure the content is factual, up-to-date, and sourced from credible educational materials.
-- Structure the information to promote active recall and spaced repetition.
-
-Note: The goal is to create flashcards that are not only informative but also engaging and conducive to effective learning. Each card should encourage deeper exploration of the topic and aid in building a strong foundation or advancing existing knowledge.
-
-The response should be in JSON format like this [{{'question': ..., 'answer'}}, ...]""",
+                flashcards = generate_flashcards(
+                    topic,
+                    study_level,
+                    number_of_flashcards,
                     client,
                 )
+
                 try:
                     print("Received response")
                     flashcards_data = json.loads(flashcards)
@@ -117,7 +108,27 @@ The response should be in JSON format like this [{{'question': ..., 'answer'}}, 
     return render(request, "app/create_flashcards.html", context=context)
 
 
-def make_chat_request(message, client):
+def generate_flashcards(topic, study_level, number_of_flashcards, client):
+    prompt = f"""Generate a set of flashcards for the following specifications:
+- Topic: {topic}
+- Study Level: {study_level}
+- Number of Flashcards: {number_of_flashcards}
+
+Each flashcard should contain:
+1. A concise question or concept on one side, relevant to the chosen topic and study level.
+2. A clear, informative answer or explanation on the other side, designed to enhance understanding and retention.
+
+Guidelines for Flashcard Creation:
+- For Beginner level, focus on fundamental concepts and definitions. Use simple language and examples.
+- For Intermediate level, include more detailed explanations and practical applications.
+- For Expert level, delve into advanced theories, complex problems, and current research trends in the field.
+- Ensure the content is factual, up-to-date, and sourced from credible educational materials.
+- Structure the information to promote active recall and spaced repetition.
+
+Note: The goal is to create flashcards that are not only informative but also engaging and conducive to effective learning. Each card should encourage deeper exploration of the topic and aid in building a strong foundation or advancing existing knowledge.
+
+The response should be in JSON format like this [{{'question': ..., 'answer'}}, ...]"""
+
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo-1106",
         messages=[
@@ -127,7 +138,7 @@ def make_chat_request(message, client):
             },
             {
                 "role": "user",
-                "content": message,
+                "content": prompt,
             },
         ],
         response_format={"type": "json_object"},
@@ -140,10 +151,16 @@ def flashcard_set_view(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, id=set_id)
     flashcards = flashcard_set.flashcards.all()
 
+    is_favorited = is_favorite(user=request.user, flashcard_set_id=set_id)
+
     return render(
         request,
         "app/study_flashcards.html",
-        {"flashcards": flashcards, "flashcard_set": flashcard_set},
+        {
+            "flashcards": flashcards,
+            "flashcard_set": flashcard_set,
+            "is_favorited": is_favorited,
+        },
     )
 
 
@@ -158,9 +175,7 @@ def search_flashcards(request):
                 topic=form.cleaned_data.get("topic"),
                 level=form.cleaned_data.get("study_level"),
                 number_of_flashcards=form.cleaned_data.get("number_of_flashcards"),
-                user_id=form.cleaned_data.get("user_id"),
-                start_date=form.cleaned_data.get("start_date"),
-                end_date=form.cleaned_data.get("end_date"),
+                username=form.cleaned_data.get("username"),
             )
     else:
         form = FlashcardSearchForm()
@@ -172,11 +187,34 @@ def search_flashcards(request):
     )
 
 
+@login_required
 def user_flashcards(request):
-    user_flashcards = search_by_user(request.user.id)
+    created_flashcards = search_by_username(request.user.username)
+    favorited_flashcards = get_user_favorites(user=request.user)
+
+    # Combine and mark which sets are favorited
+    user_flashcards = []
+    for flashcard_set in (created_flashcards | favorited_flashcards).distinct():
+        flashcard_set.is_favorited = flashcard_set in favorited_flashcards
+        user_flashcards.append(flashcard_set)
 
     return render(
         request,
         "app/user_flashcards.html",
         context={"user_flashcards": user_flashcards},
     )
+
+
+@login_required
+def add_to_favorites(request, set_id):
+    flashcard_set = search_by_id(set_id=set_id)
+    add_set_to_favorites(user=request.user, flashcard_set_id=set_id)
+    return redirect(
+        "flashcard_set", set_id=set_id
+    )  # Redirect to the detail page of the flashcard set
+
+
+@login_required
+def remove_from_favorites(request, set_id):
+    remove_set_from_favorites(user=request.user, flashcard_set_id=set_id)
+    return redirect("flashcard_set", set_id=set_id)

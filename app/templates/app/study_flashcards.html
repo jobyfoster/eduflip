@@ -6,16 +6,29 @@
 
 {% block head_block %}
     <link rel="stylesheet" href="{% static 'css/flashcards.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 {% endblock head_block %}
 
 {% block content %}
-    <div class="flashcard-set-info p-3 pt-4 mt-3 mb-5">
+    <div class="flashcard-set-info p-3 pt-3 mb-5 position-relative">
+        {% if is_favorited %}
+            <a href="{% url 'unfavorite_flashcard_set' flashcard_set.id %}" class="btn-favorite position-absolute">
+                <i class="fas fa-star"></i> <!-- Filled star -->
+            </a>
+        {% else %}
+            <a href="{% url 'favorite_flashcard_set' flashcard_set.id %}" class="btn-favorite position-absolute">
+                <i class="far fa-star"></i> <!-- Hollow star -->
+            </a>
+        {% endif %}
         <h2 class="mb-4">{{ flashcard_set.topic }}</h2>
         <p><strong>Created By:</strong> {{ flashcard_set.user.username }}</p>
         <p><strong>Date Created:</strong> {{ flashcard_set.created_at|date:"F d, Y" }}</p>
         <p><strong>Study Level:</strong> {{ flashcard_set.study_level|title }}</p>
         <p><strong>Number of Cards:</strong> {{ flashcard_set.number_of_flashcards }}</p>
     </div>
+
+    
+
 
     <div class="row flashcard-container">
         {% for flashcard in flashcards %}

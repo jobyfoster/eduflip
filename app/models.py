@@ -1,10 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 import string
 import random
 
 
-# Create your models here.
+# Helper function to generate a unique ID for FlashcardSet
 def generate_unique_id():
     while True:
         unique_id = "".join(random.choices(string.ascii_letters + string.digits, k=8))
@@ -12,6 +13,7 @@ def generate_unique_id():
             return unique_id
 
 
+# Model for Flashcard Sets
 class FlashcardSet(models.Model):
     id = models.CharField(
         max_length=8, primary_key=True, default=generate_unique_id, editable=False
@@ -28,6 +30,7 @@ class FlashcardSet(models.Model):
         super().save(*args, **kwargs)
 
 
+# Model for individual Flashcards
 class Flashcard(models.Model):
     flashcard_set = models.ForeignKey(
         FlashcardSet, related_name="flashcards", on_delete=models.CASCADE
@@ -36,6 +39,7 @@ class Flashcard(models.Model):
     answer = models.TextField()
 
 
+# Function to create a new flashcard set
 def create_flashcard_set(
     user, flashcards_data, topic, study_level, number_of_flashcards
 ):
@@ -57,6 +61,7 @@ def create_flashcard_set(
     return flashcard_set
 
 
+# Various search functions
 def get_user_flashcard_sets(user):
     return FlashcardSet.objects.filter(user=user)
 
@@ -81,8 +86,12 @@ def search_by_flashcard_count(count):
     return FlashcardSet.objects.filter(number_of_flashcards=count)
 
 
-def search_by_user(user_id):
+def search_by_user_id(user_id):
     return FlashcardSet.objects.filter(user__id=user_id)
+
+
+def search_by_username(username):
+    return FlashcardSet.objects.filter(user__username=username)
 
 
 def search_by_id(set_id):
@@ -106,7 +115,7 @@ def count_sets_by_user(user_id):
 def advanced_search(
     topic=None,
     level=None,
-    user_id=None,
+    username=None,
     start_date=None,
     end_date=None,
     number_of_flashcards=None,
@@ -116,10 +125,53 @@ def advanced_search(
         query = query.filter(topic__icontains=topic)
     if level and level != "":
         query = query.filter(study_level__icontains=level)
-    if user_id:
-        query = query.filter(user__id=user_id)
-    if start_date and end_date:
-        query = query.filter(created_at__range=[start_date, end_date])
+    if username:
+        query = query.filter(user__username__icontains=username)
     if number_of_flashcards and number_of_flashcards != "":
         query = query.filter(number_of_flashcards=number_of_flashcards)
     return query
+
+
+# Model for managing user's favorite flashcard sets
+class Favorite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favorites")
+    flashcard_set = models.ForeignKey(
+        FlashcardSet, on_delete=models.CASCADE, related_name="favorited_by"
+    )
+
+    class Meta:
+        unique_together = ("user", "flashcard_set")
+
+
+# Functions for managing favorites
+def add_set_to_favorites(user, flashcard_set_id):
+    """Add a flashcard set to a user's favorites"""
+    try:
+        flashcard_set = FlashcardSet.objects.get(id=flashcard_set_id)
+        Favorite.objects.create(user=user, flashcard_set=flashcard_set)
+    except ObjectDoesNotExist:
+        # Handle the case where flashcard_set does not exist
+        pass
+
+
+def remove_set_from_favorites(user, flashcard_set_id):
+    """Remove a flashcard set from a user's favorites"""
+    try:
+        flashcard_set = FlashcardSet.objects.get(id=flashcard_set_id)
+        Favorite.objects.filter(user=user, flashcard_set=flashcard_set).delete()
+    except FlashcardSet.DoesNotExist:
+        # Handle the case where the flashcard set does not exist.
+        # For example, you might log this as an error or inform the user.
+        pass
+
+
+def get_user_favorites(user):
+    """Get all favorite flashcard sets of a user"""
+    return FlashcardSet.objects.filter(favorited_by__user=user)
+
+
+def is_favorite(user, flashcard_set_id):
+    """Check if a flashcard set is in a user's favorites"""
+    return Favorite.objects.filter(
+        user=user, flashcard_set_id=flashcard_set_id
+    ).exists()
