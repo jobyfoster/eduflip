@@ -40,20 +40,23 @@ pip install -r requirements.txt
 ```
 
 4. **Generate and Set Django Secret Key**
-Create a .env file in the root directory.
-Generate a new Django secret key. You can use an online Django secret key generator or run the following in a Python shell:
+
+- Create a .env file in the root directory. (Where `manage.py` is located)
+
+- Generate a new Django secret key. You can use an online Django secret key generator or run the following in a Python shell:
 ```sh
 import secrets
 print(secrets.token_urlsafe(50))
 ```
 
-Add the secret key to the .env file:
+- Add the secret key to the .env file:
+
 ```sh
 DJANGO_SECRET_KEY=your_generated_secret_key
 ```
 
-Ensure that python-dotenv is installed (it should be in your requirements.txt).
-In settings.py, import the secret key:
+- Ensure that python-dotenv is installed (it should be in your requirements.txt).
+- In settings.py, import the secret key:
 ```sh
 import os
 from dotenv import load_dotenv
