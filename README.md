@@ -28,18 +28,40 @@ git clone https://github.com/jobyfoster/eduflip.git
 cd eduflip
 ```
 
-3. **Set Up a Virtual Environment** (Optional but recommended)
+2. **Set Up a Virtual Environment** (Optional but recommended)
 ```sh
 python -m venv venv
 source venv/bin/activate # On Windows use `venv\Scripts\activate`
 ```
 
-5. **Install Required Packages**
+3. **Install Required Packages**
 ```sh
 pip install -r requirements.txt
 ```
 
-4. **Run Migrations**
+4. **Generate and Set Django Secret Key**
+Create a .env file in the root directory.
+Generate a new Django secret key. You can use an online Django secret key generator or run the following in a Python shell:
+```sh
+import secrets
+print(secrets.token_urlsafe(50))
+```
+
+Add the secret key to the .env file:
+```sh
+DJANGO_SECRET_KEY=your_generated_secret_key
+```
+
+Ensure that python-dotenv is installed (it should be in your requirements.txt).
+In settings.py, import the secret key:
+```sh
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+```
+5. **Run Migrations**
 ```sh
 python manage.py migrate
 ```
@@ -49,7 +71,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-8. **Open the Application**
+7. **Open the Application**
 - Go to `http://localhost:8000` in your web browser.
 
 ## Contributing
