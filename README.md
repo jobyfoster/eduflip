@@ -87,7 +87,7 @@ Contributions to EduFlip are always welcome. You can contribute in various ways 
 5. **Open a Pull Request**
 
 ## License
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the GNU General Public License. See `LICENSE` for more information.
 
 ## Acknowledgments
 - Base Camp Coding Academy for providing guidance and learning resources.
