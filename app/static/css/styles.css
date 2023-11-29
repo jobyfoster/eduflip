@@ -37,9 +37,3 @@
   background-color: #dc3545; /* Background color on hover */
   color: #fff; /* Text color on hover */
 }
-
-#footer {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-}

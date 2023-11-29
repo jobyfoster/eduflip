@@ -12,14 +12,21 @@
 {% block content %}
     <div class="flashcard-set-info p-3 pt-3 mb-5 position-relative">
         {% if is_favorited %}
-            <a href="{% url 'unfavorite_flashcard_set' flashcard_set.id %}" class="btn-favorite position-absolute">
+            <a href="{% url 'remove_favorite' flashcard_set.id %}" class="btn-favorite position-absolute">
                 <i class="fas fa-star"></i> <!-- Filled star -->
             </a>
         {% else %}
-            <a href="{% url 'favorite_flashcard_set' flashcard_set.id %}" class="btn-favorite position-absolute">
+            <a href="{% url 'add_favorite' flashcard_set.id %}" class="btn-favorite position-absolute">
                 <i class="far fa-star"></i> <!-- Hollow star -->
             </a>
         {% endif %}
+
+        {% if is_owner %}
+            <a href="{% url 'delete_flashcards' flashcard_set.id %}" class="btn btn-danger position-absolute" style="bottom: 15px; right: 20px;">
+                <i class="fas fa-trash-alt"></i> Delete Set
+            </a>
+        {% endif %}
+
         <h2 class="mb-4">{{ flashcard_set.topic }}</h2>
         <p><strong>Created By:</strong> {{ flashcard_set.user.username }}</p>
         <p><strong>Date Created:</strong> {{ flashcard_set.created_at|date:"F d, Y" }}</p>

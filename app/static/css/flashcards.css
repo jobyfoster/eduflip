@@ -6,7 +6,7 @@
 
 /* Individual flashcard styling */
 .flashcard {
-  width: 400px;
+  width: 425px;
   height: 250px;
   perspective: 1000px; /* Adds a 3D effect */
   transition: transform 0.3s ease; /* Smooth transition for flipping effect */

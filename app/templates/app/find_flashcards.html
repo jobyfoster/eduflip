@@ -44,43 +44,41 @@
     </div>
 
     {# Display search results if available #}
-    {% if search_results %}
-        <div class="search-results mt-5">
-            <h3>Search Results</h3>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+    <div class="search-results mt-5">
+        <h3>Search Results</h3>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Topic</th>
+                        <th scope="col">Study Level</th>
+                        <th scope="col">Number of Flashcards</th>
+                        <th scope="col">Created By</th>
+                        <th scope="col">View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {# Iterate over each flashcard set in the search results #}
+                    {% for flashcard_set in search_results %}
                         <tr>
-                            <th scope="col">Topic</th>
-                            <th scope="col">Study Level</th>
-                            <th scope="col">Number of Flashcards</th>
-                            <th scope="col">Created By</th>
-                            <th scope="col">View</th>
+                            <td>{{ flashcard_set.topic }}</td>
+                            <td>{{ flashcard_set.study_level|title }}</td>
+                            <td>{{ flashcard_set.number_of_flashcards }}</td>
+                            <td>{{ flashcard_set.user.username }}</td>
+                            <td>
+                                {# Link to view individual flashcard set #}
+                                <a href="{% url 'view_flashcard_set' flashcard_set.id %}" class="btn btn-sm btn-primary px-4">View</a>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {# Iterate over each flashcard set in the search results #}
-                        {% for flashcard_set in search_results %}
-                            <tr>
-                                <td>{{ flashcard_set.topic }}</td>
-                                <td>{{ flashcard_set.study_level|title }}</td>
-                                <td>{{ flashcard_set.number_of_flashcards }}</td>
-                                <td>{{ flashcard_set.user.username }}</td>
-                                <td>
-                                    {# Link to view individual flashcard set #}
-                                    <a href="{% url 'flashcard_set' flashcard_set.id %}" class="btn btn-sm btn-primary px-4">View</a>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="5">No flashcard sets found.</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">No flashcard sets found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    {% endif %}
+    </div>
 
     {# JavaScript to handle form submission #}
     <script>

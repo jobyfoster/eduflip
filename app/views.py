@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.http import HttpResponseServerError
 from openai import OpenAI, OpenAIError
 import json
@@ -91,7 +92,9 @@ def generate_flashcards_view(request):
                         new_flashcard_set_id = new_flashcard_set.id
                         print("Flashcards created!")
                         print("Redirecting...")
-                        return redirect("flashcard_set", set_id=new_flashcard_set_id)
+                        return redirect(
+                            "view_flashcard_set", set_id=new_flashcard_set_id
+                        )
                     else:
                         raise ValueError("Invalid response format from API")
                 except json.JSONDecodeError:
@@ -152,6 +155,7 @@ def flashcard_set_view(request, set_id):
     flashcards = flashcard_set.flashcards.all()
 
     is_favorited = is_favorite(user=request.user, flashcard_set_id=set_id)
+    is_owner = flashcard_set.user == request.user
 
     return render(
         request,
@@ -160,6 +164,7 @@ def flashcard_set_view(request, set_id):
             "flashcards": flashcards,
             "flashcard_set": flashcard_set,
             "is_favorited": is_favorited,
+            "is_owner": is_owner,
         },
     )
 
@@ -210,11 +215,32 @@ def add_to_favorites(request, set_id):
     flashcard_set = search_by_id(set_id=set_id)
     add_set_to_favorites(user=request.user, flashcard_set_id=set_id)
     return redirect(
-        "flashcard_set", set_id=set_id
+        "view_flashcard_set", set_id=set_id
     )  # Redirect to the detail page of the flashcard set
 
 
 @login_required
 def remove_from_favorites(request, set_id):
     remove_set_from_favorites(user=request.user, flashcard_set_id=set_id)
-    return redirect("flashcard_set", set_id=set_id)
+    return redirect("view_flashcard_set", set_id=set_id)
+
+
+@login_required
+def delete_flashcard_set(request, set_id):
+    flashcard_set = get_object_or_404(FlashcardSet, pk=set_id)
+
+    # Check if the current user is the owner of the flashcard set
+    if request.user != flashcard_set.user:
+        messages.error(
+            request, "You do not have permission to delete this flashcard set."
+        )
+        return redirect(reverse("view_flashcard_set", set_id=set_id))
+
+    # Delete operation
+    if request.method == "POST":
+        flashcard_set.delete()
+        messages.success(request, "Flashcard set deleted successfully.")
+        return redirect(reverse("home"))  # Redirect to a relevant page
+
+    context = {"flashcard_set": flashcard_set}
+    return render(request, "app/delete_set_confirmation.html", context)
