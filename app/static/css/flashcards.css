@@ -2,15 +2,35 @@
 .flashcard-container {
   display: flex;
   flex-wrap: wrap;
+  margin-right: -15px; /* Adjusts spacing between cards */
+  margin-left: -15px;
 }
 
 /* Individual flashcard styling */
 .flashcard {
-  width: 425px;
-  height: 250px;
-  perspective: 1000px; /* Adds a 3D effect */
-  transition: transform 0.3s ease; /* Smooth transition for flipping effect */
-  cursor: pointer; /* Changes cursor to indicate interactivity */
+  perspective: 1000px;
+  height: 225px;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  margin-right: 15px; /* Adds spacing around each card */
+  margin-left: 15px;
+}
+
+/* Responsive design adjustments */
+@media (max-width: 992px) {
+  /* Adjust breakpoint as needed */
+  .flashcard-container .col-lg-4 {
+    max-width: 50%; /* 2 cards per row */
+    flex: 0 0 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .flashcard-container .col-lg-4,
+  .flashcard-container .col-md-6 {
+    max-width: 100%; /* 1 card per row */
+    flex: 0 0 100%;
+  }
 }
 
 /* Style for the content of the card, managing the flip effect */

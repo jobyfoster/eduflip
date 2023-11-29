@@ -34,12 +34,9 @@
         <p><strong>Number of Cards:</strong> {{ flashcard_set.number_of_flashcards }}</p>
     </div>
 
-    
-
-
     <div class="row flashcard-container">
         {% for flashcard in flashcards %}
-        <div class="col-md-4 mb-5">
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
             <div class="flashcard">
                 <div class="card-content bg-primary text-white rounded border">
                     <div class="card-front card-body">
@@ -53,6 +50,34 @@
         </div>
         {% endfor %}
     </div>
+    
+
+    <div class="additional-resources my-4">
+        <h3 class="mb-3">Additional Resources</h3>
+        {% if additional_resources %}
+            <div class="accordion" id="resourcesAccordion">
+                {% for resource in additional_resources %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
+                                {{ resource.title }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#resourcesAccordion">
+                            <div class="accordion-body">
+                                <p>{{ resource.description }}</p>
+                                <a href="{{ resource.link }}" target="_blank" class="btn btn-primary">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No additional resources available.</p>
+        {% endif %}
+    </div>
+
+
 
     <script src="{% static 'js/flashcards.js' %}"></script>
 {% endblock %}

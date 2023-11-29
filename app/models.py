@@ -39,6 +39,69 @@ class Flashcard(models.Model):
     answer = models.TextField()
 
 
+# New model for additional resources
+class Resource(models.Model):
+    flashcard_set = models.ForeignKey(
+        FlashcardSet, related_name="resources", on_delete=models.CASCADE
+    )
+    title = models.CharField(max_length=200)
+    link = models.URLField(max_length=200)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.title
+
+
+def add_resource_to_flashcard_set(flashcard_set_id, title, link, description):
+    try:
+        flashcard_set = FlashcardSet.objects.get(id=flashcard_set_id)
+        resource = Resource(
+            flashcard_set=flashcard_set, title=title, link=link, description=description
+        )
+        resource.save()
+        return resource
+    except FlashcardSet.DoesNotExist:
+        raise ValueError("Flashcard set not found")
+
+
+def get_resources_for_flashcard_set(flashcard_set_id):
+    try:
+        flashcard_set = FlashcardSet.objects.get(id=flashcard_set_id)
+        return flashcard_set.resources.all()
+    except FlashcardSet.DoesNotExist:
+        raise ValueError("Flashcard set not found")
+
+
+def update_resource(resource_id, title=None, link=None, description=None):
+    try:
+        resource = Resource.objects.get(id=resource_id)
+        if title:
+            resource.title = title
+        if link:
+            resource.link = link
+        if description:
+            resource.description = description
+        resource.save()
+        return resource
+    except Resource.DoesNotExist:
+        raise ValueError("Resource not found")
+
+
+def delete_resource(resource_id):
+    try:
+        resource = Resource.objects.get(id=resource_id)
+        resource.delete()
+        return True
+    except Resource.DoesNotExist:
+        raise ValueError("Resource not found")
+
+
+def list_all_resources(flashcard_set_id=None):
+    if flashcard_set_id:
+        return Resource.objects.filter(flashcard_set_id=flashcard_set_id)
+    return Resource.objects.all()
+
+
 # Function to create a new flashcard set
 def create_flashcard_set(
     user, flashcards_data, topic, study_level, number_of_flashcards

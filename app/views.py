@@ -10,6 +10,7 @@ from .forms import GenerateFlashCardsForm, FlashcardSearchForm
 from .models import (
     Flashcard,
     FlashcardSet,
+    Resource,
     Favorite,
     create_flashcard_set,
     advanced_search,
@@ -19,6 +20,8 @@ from .models import (
     is_favorite,
     add_set_to_favorites,
     remove_set_from_favorites,
+    add_resource_to_flashcard_set,
+    get_resources_for_flashcard_set,
 )
 
 
@@ -89,6 +92,17 @@ def generate_flashcards_view(request):
                             study_level,
                             number_of_flashcards,
                         )
+
+                        additional_resources = flashcards_data["additional_resources"]
+
+                        for resource in additional_resources:
+                            add_resource_to_flashcard_set(
+                                new_flashcard_set.id,
+                                resource["title"],
+                                resource["link"],
+                                resource["description"],
+                            )
+
                         new_flashcard_set_id = new_flashcard_set.id
                         print("Flashcards created!")
                         print("Redirecting...")
@@ -130,7 +144,10 @@ Guidelines for Flashcard Creation:
 
 Note: The goal is to create flashcards that are not only informative but also engaging and conducive to effective learning. Each card should encourage deeper exploration of the topic and aid in building a strong foundation or advancing existing knowledge.
 
-The response should be in JSON format like this [{{'question': ..., 'answer'}}, ...]"""
+The response should be in JSON format like this {{'flashcards': [{{'question': ..., 'answer'}}, ..., 'additional_resources': [{{"title": "Resource Title 1", "link": "https://example.com/resource1", "description": "Brief description of Resource 1"}},...]}}
+
+Do not include the resource if the link for it is not reliable.
+"""
 
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo-1106",
@@ -153,6 +170,12 @@ The response should be in JSON format like this [{{'question': ..., 'answer'}}, 
 def flashcard_set_view(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, id=set_id)
     flashcards = flashcard_set.flashcards.all()
+    try:
+        additional_resources = get_resources_for_flashcard_set(set_id)
+    except ValueError:
+        additional_resources = []
+
+    print(additional_resources)
 
     is_favorited = is_favorite(user=request.user, flashcard_set_id=set_id)
     is_owner = flashcard_set.user == request.user
@@ -163,6 +186,7 @@ def flashcard_set_view(request, set_id):
         {
             "flashcards": flashcards,
             "flashcard_set": flashcard_set,
+            "additional_resources": additional_resources,
             "is_favorited": is_favorited,
             "is_owner": is_owner,
         },
