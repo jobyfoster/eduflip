@@ -59,6 +59,7 @@ def generate_flashcards_view(request):
     try:
         client = OpenAI(api_key=request.user.account.openai_key)
     except OpenAIError as e:
+        print(e)
         error_messages.append(f"Error connecting to OpenAI: {e}")
 
     if request.method == "POST":
