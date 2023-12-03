@@ -4,6 +4,10 @@
 {# Load the crispy forms tags for better form styling #}
 {% load crispy_forms_tags %}
 
+{% block head_block %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+{% endblock head_block %}
+
 {# Set the page title to 'Find Flashcards' #}
 {% block page_title %}Find Flashcards{% endblock page_title %}
 
@@ -44,7 +48,7 @@
     </div>
 
     {# Display search results if available #}
-    <div class="search-results mt-5">
+    <div class="search-results my-5">
         <h3>Search Results</h3>
         <div class="table-responsive">
             <table class="table table-hover">
@@ -61,7 +65,12 @@
                     {# Iterate over each flashcard set in the search results #}
                     {% for flashcard_set in search_results %}
                         <tr>
-                            <td>{{ flashcard_set.topic }}</td>
+                            <td>
+                                {{ flashcard_set.topic }}
+                                {% if flashcard_set.is_favorited %}
+                                    <i class="fas fa-star" style="color: gold;"></i>
+                                {% endif %}
+                            </td>
                             <td>{{ flashcard_set.study_level|title }}</td>
                             <td>{{ flashcard_set.number_of_flashcards }}</td>
                             <td>{{ flashcard_set.user.username }}</td>

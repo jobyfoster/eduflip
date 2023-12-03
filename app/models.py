@@ -24,6 +24,9 @@ class FlashcardSet(models.Model):
     number_of_flashcards = models.IntegerField(default=10)
     topic = models.CharField(max_length=100)
 
+    def __str__(self):
+        return f"{self.topic} by {self.user.username}"
+
     def save(self, *args, **kwargs):
         if not self.id:
             self.id = generate_unique_id()

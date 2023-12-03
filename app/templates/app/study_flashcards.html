@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
-{% block page_title %}Study{% endblock page_title %}
+{% block page_title %}{{ flashcard_set.topic }} Flashcards{% endblock page_title %}
 
 {% block head_block %}
     <link rel="stylesheet" href="{% static 'css/flashcards.css' %}">
@@ -52,7 +52,7 @@
     </div>
     
 
-    <div class="additional-resources my-4">
+    <div class="additional-resources my-5">
         <h3 class="mb-3">Additional Resources</h3>
         {% if additional_resources %}
             <div class="accordion" id="resourcesAccordion">

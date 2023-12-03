@@ -94,7 +94,13 @@ def generate_flashcards_view(request):
                             number_of_flashcards,
                         )
 
-                        additional_resources = flashcards_data["additional_resources"]
+                        try:
+                            additional_resources = flashcards_data[
+                                "additional_resources"
+                            ]
+                        except Exception as e:
+                            print("No additional resources found...")
+                            additional_resources = []
 
                         for resource in additional_resources:
                             add_resource_to_flashcard_set(
@@ -145,7 +151,7 @@ Guidelines for Flashcard Creation:
 
 Note: The goal is to create flashcards that are not only informative but also engaging and conducive to effective learning. Each card should encourage deeper exploration of the topic and aid in building a strong foundation or advancing existing knowledge.
 
-The response should be in JSON format like this {{'flashcards': [{{'question': ..., 'answer'}}, ..., 'additional_resources': [{{"title": "Resource Title 1", "link": "https://example.com/resource1", "description": "Brief description of Resource 1"}},...]}}
+The response should be in JSON format like this {{'flashcards': [{{'question': ..., 'answer'}}, ...], 'additional_resources': [{{"title": "Resource Title 1", "link": "https://example.com/resource1", "description": "Brief description of Resource 1"}},...]}}
 
 Do not include the resource if the link for it is not reliable.
 """
@@ -176,8 +182,6 @@ def flashcard_set_view(request, set_id):
     except ValueError:
         additional_resources = []
 
-    print(additional_resources)
-
     is_favorited = is_favorite(user=request.user, flashcard_set_id=set_id)
     is_owner = flashcard_set.user == request.user
 
@@ -199,8 +203,6 @@ def search_flashcards(request):
     if request.method == "POST":
         form = FlashcardSearchForm(request.POST)
         if form.is_valid():
-            # Use your search functions based on the form data
-            # Example:
             search_results = advanced_search(
                 topic=form.cleaned_data.get("topic"),
                 level=form.cleaned_data.get("study_level"),
@@ -209,6 +211,13 @@ def search_flashcards(request):
             )
     else:
         form = FlashcardSearchForm()
+
+    if request.user.is_authenticated:
+        for flashcard_set in search_results:
+            flashcard_set.is_favorited = flashcard_set.is_favorite(request.user)
+    else:
+        for flashcard_set in search_results:
+            flashcard_set.is_favorited = False
 
     return render(
         request,
