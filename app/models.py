@@ -27,6 +27,9 @@ class FlashcardSet(models.Model):
     def __str__(self):
         return f"{self.topic} by {self.user.username}"
 
+    def is_favorite(self, user):
+        return Favorite.objects.filter(user=user, flashcard_set=self).exists()
+
     def save(self, *args, **kwargs):
         if not self.id:
             self.id = generate_unique_id()

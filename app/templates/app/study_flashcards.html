@@ -27,7 +27,7 @@
             </a>
         {% endif %}
 
-        <h2 class="mb-4">{{ flashcard_set.topic }}</h2>
+        <h2 class="mb-4">{{ flashcard_set.topic|title }}</h2>
         <p><strong>Created By:</strong> {{ flashcard_set.user.username }}</p>
         <p><strong>Date Created:</strong> {{ flashcard_set.created_at|date:"F d, Y" }}</p>
         <p><strong>Study Level:</strong> {{ flashcard_set.study_level|title }}</p>

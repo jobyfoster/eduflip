@@ -38,6 +38,7 @@ def is_api_key_valid(key):
             prompt='This is a test. respond with "a"',
             max_tokens=5,
         )
+
     except Exception as ex:
         print(ex)
         return False
@@ -58,6 +59,7 @@ def generate_flashcards_view(request):
 
     try:
         client = OpenAI(api_key=request.user.account.openai_key)
+
     except OpenAIError as e:
         print(e)
         error_messages.append(f"Error connecting to OpenAI: {e}")
@@ -84,6 +86,7 @@ def generate_flashcards_view(request):
                 try:
                     print("Received response")
                     flashcards_data = json.loads(flashcards)
+
                     if "flashcards" in flashcards_data:
                         print("Making flashcards...")
                         new_flashcard_set = create_flashcard_set(
@@ -98,6 +101,7 @@ def generate_flashcards_view(request):
                             additional_resources = flashcards_data[
                                 "additional_resources"
                             ]
+
                         except Exception as e:
                             print("No additional resources found...")
                             additional_resources = []
@@ -111,13 +115,16 @@ def generate_flashcards_view(request):
                             )
 
                         new_flashcard_set_id = new_flashcard_set.id
+
                         print("Flashcards created!")
                         print("Redirecting...")
+
                         return redirect(
                             "view_flashcard_set", set_id=new_flashcard_set_id
                         )
                     else:
                         raise ValueError("Invalid response format from API")
+
                 except json.JSONDecodeError:
                     print("Error parsing JSON response")
                     return HttpResponseServerError("Error processing the response.")
@@ -129,6 +136,7 @@ def generate_flashcards_view(request):
                 )
 
     context = {"form": form, "error_messages": error_messages}
+
     return render(request, "app/create_flashcards.html", context=context)
 
 
@@ -177,12 +185,16 @@ Do not include the resource if the link for it is not reliable.
 def flashcard_set_view(request, set_id):
     flashcard_set = get_object_or_404(FlashcardSet, id=set_id)
     flashcards = flashcard_set.flashcards.all()
+    is_favorited = False
+
     try:
         additional_resources = get_resources_for_flashcard_set(set_id)
     except ValueError:
         additional_resources = []
 
-    is_favorited = is_favorite(user=request.user, flashcard_set_id=set_id)
+    if request.user.is_authenticated:
+        is_favorited = is_favorite(user=request.user, flashcard_set_id=set_id)
+
     is_owner = flashcard_set.user == request.user
 
     return render(
@@ -202,6 +214,7 @@ def search_flashcards(request):
     search_results = None
     if request.method == "POST":
         form = FlashcardSearchForm(request.POST)
+
         if form.is_valid():
             search_results = advanced_search(
                 topic=form.cleaned_data.get("topic"),
@@ -209,15 +222,17 @@ def search_flashcards(request):
                 number_of_flashcards=form.cleaned_data.get("number_of_flashcards"),
                 username=form.cleaned_data.get("username"),
             )
+
+            if request.user.is_authenticated:
+                for flashcard_set in search_results:
+                    flashcard_set.is_favorited = flashcard_set.is_favorite(request.user)
+
+            else:
+                for flashcard_set in search_results:
+                    flashcard_set.is_favorited = False
+
     else:
         form = FlashcardSearchForm()
-
-    if request.user.is_authenticated:
-        for flashcard_set in search_results:
-            flashcard_set.is_favorited = flashcard_set.is_favorite(request.user)
-    else:
-        for flashcard_set in search_results:
-            flashcard_set.is_favorited = False
 
     return render(
         request,
@@ -248,6 +263,7 @@ def user_flashcards(request):
 def add_to_favorites(request, set_id):
     flashcard_set = search_by_id(set_id=set_id)
     add_set_to_favorites(user=request.user, flashcard_set_id=set_id)
+
     return redirect(
         "view_flashcard_set", set_id=set_id
     )  # Redirect to the detail page of the flashcard set
@@ -256,6 +272,7 @@ def add_to_favorites(request, set_id):
 @login_required
 def remove_from_favorites(request, set_id):
     remove_set_from_favorites(user=request.user, flashcard_set_id=set_id)
+
     return redirect("view_flashcard_set", set_id=set_id)
 
 
@@ -268,13 +285,16 @@ def delete_flashcard_set(request, set_id):
         messages.error(
             request, "You do not have permission to delete this flashcard set."
         )
+
         return redirect(reverse("view_flashcard_set", set_id=set_id))
 
     # Delete operation
     if request.method == "POST":
         flashcard_set.delete()
         messages.success(request, "Flashcard set deleted successfully.")
+
         return redirect(reverse("home"))  # Redirect to a relevant page
 
     context = {"flashcard_set": flashcard_set}
+
     return render(request, "app/delete_set_confirmation.html", context)

@@ -66,7 +66,7 @@
                     {% for flashcard_set in search_results %}
                         <tr>
                             <td>
-                                {{ flashcard_set.topic }}
+                                {{ flashcard_set.topic|title }}
                                 {% if flashcard_set.is_favorited %}
                                     <i class="fas fa-star" style="color: gold;"></i>
                                 {% endif %}
